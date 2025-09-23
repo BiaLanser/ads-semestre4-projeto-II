@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Input from "../../../components/ui/Input";
-import Button from "@/app/components/ui/Button";
+import Button from "@components/ui/Button";
 
 export default function SignupPage() {
   const [nome, setNome] = useState("");

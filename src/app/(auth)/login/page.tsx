@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import Input from "@/app/components/ui/Input";
-import Button from "@/app/components/ui/Button";
-import { useAuth } from "@/app/context/AuthContext";
+import Input from "@components/ui/Input";
+import Button from "@components/ui/Button";
+import { useAuth } from "@context/AuthContext";
 
 export default function LoginPage() {
   const { login } = useAuth();
