@@ -1,7 +1,7 @@
 import "./globals.css";
-import { AuthProvider } from "@context/AuthContext";
-import Navbar from "@components/shared/Navbar";
-import Footer from "@components/shared/Footer";
+import { AuthProvider } from "@/context/AuthContext";
+import Navbar from "@/components/shared/Navbar";
+import Footer from "@/components/shared/Footer";
 
 export const metadata = {
   title: "FinTrack",
