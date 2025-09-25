@@ -19,32 +19,34 @@ export default function Login() {
   const router = useRouter();
 
   const loginEmail = async () => {
+    setErro("");
     try {
       const cred = await signInWithEmailAndPassword(auth, email, senha);
       if (!cred.user.emailVerified) {
         setErro("Confirme seu e-mail antes de entrar.");
         return;
       }
-      console.log("Login email ok!");
-      router.push("/"); // manda para landing page
+      router.push("/dashboard");
     } catch (err: any) {
       setErro(err.message);
     }
   };
 
   const loginGoogle = async () => {
+    setErro("");
     try {
       await signInWithPopup(auth, googleProvider);
-      router.push("/");
+      router.push("/dashboard");
     } catch (err: any) {
       setErro(err.message);
     }
   };
 
   const loginGithub = async () => {
+    setErro("");
     try {
       await signInWithPopup(auth, githubProvider);
-      router.push("/");
+      router.push("/dashboard");
     } catch (err: any) {
       setErro(err.message);
     }
@@ -71,6 +73,7 @@ export default function Login() {
         textAlign: "center"
       }}>
         <h2 style={{marginBottom: "20px"}}>Login</h2>
+
         <input 
           type="email" 
           placeholder="Email"
@@ -99,6 +102,7 @@ export default function Login() {
             fontSize: "16px"
           }}
         />
+
         <button 
           onClick={loginEmail} 
           style={{
@@ -146,6 +150,22 @@ export default function Login() {
         >
           Login com GitHub
         </button>
+
+        <button
+          onClick={() => router.push("/forgot-password")}
+          style={{
+            marginTop: "15px",
+            background: "transparent",
+            color: "#0070f3",
+            border: "none",
+            cursor: "pointer",
+            textDecoration: "underline",
+            fontSize: "14px"
+          }}
+        >
+          Esqueci minha senha
+        </button>
+
         {erro && <p style={{color:"red", marginTop:"15px"}}>{erro}</p>}
       </div>
     </div>
