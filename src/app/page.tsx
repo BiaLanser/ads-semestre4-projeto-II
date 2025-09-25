@@ -1,9 +1,11 @@
 "use client";
 import { useRouter } from "next/navigation";
 import Button from "@components/ui/Button";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LandingPage() {
   const router = useRouter();
+  const { user, logout } = useAuth();
 
   return (
     <section className="text-center py-20">
@@ -12,13 +14,26 @@ export default function LandingPage() {
         Controle suas finanças de forma inteligente, registre gastos e visualize insights.
       </p>
       <div className="flex gap-4 justify-center">
-        <Button onClick={() => router.push("/signup")}>Cadastrar</Button>
-        <Button variant="secondary" onClick={() => router.push("/login")}>
-          Entrar
-        </Button>
-         <Button variant="secondary" onClick={() => router.push("/dashboard")}>
-          Dashboard
-        </Button>
+        {!user && (
+          <>
+            <Button onClick={() => router.push("/signup")}>Cadastrar</Button>
+            <Button variant="secondary" onClick={() => router.push("/login")}>
+              Entrar
+            </Button>
+          </>
+        )}
+
+        {user && (
+          <>
+            <Button onClick={() => router.push("/dashboard")}>Dashboard</Button>
+            <Button variant="secondary" onClick={() => router.push("/profile")}>
+              Perfil
+            </Button>
+            <Button variant="secondary" onClick={logout}>
+              Sair
+            </Button>
+          </>
+        )}
       </div>
     </section>
   );

@@ -1,11 +1,12 @@
-"use client"; 
+"use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { auth } from "../../../lib/firebase";
-import { 
-  signInWithEmailAndPassword, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  GithubAuthProvider 
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  GithubAuthProvider,
 } from "firebase/auth";
 
 const googleProvider = new GoogleAuthProvider();
@@ -15,11 +16,17 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
+  const router = useRouter();
 
   const loginEmail = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, senha);
+      const cred = await signInWithEmailAndPassword(auth, email, senha);
+      if (!cred.user.emailVerified) {
+        setErro("Confirme seu e-mail antes de entrar.");
+        return;
+      }
       console.log("Login email ok!");
+      router.push("/"); // manda para landing page
     } catch (err: any) {
       setErro(err.message);
     }
@@ -28,7 +35,7 @@ export default function Login() {
   const loginGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
-      console.log("Login Google ok!");
+      router.push("/");
     } catch (err: any) {
       setErro(err.message);
     }
@@ -37,7 +44,7 @@ export default function Login() {
   const loginGithub = async () => {
     try {
       await signInWithPopup(auth, githubProvider);
-      console.log("Login GitHub ok!");
+      router.push("/");
     } catch (err: any) {
       setErro(err.message);
     }

@@ -1,28 +1,42 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 interface AuthContextType {
-  user: string | null;
-  login: (email: string, senha: string) => void;
-  logout: () => void;
+  user: User | null;
+  loading: boolean;
+  login: (email: string, senha: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  function login(email: string, senha: string) {
-    setUser(email);
-    alert(`Login mock com: ${email}`);
+  // Escuta mudanças de autenticação
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
+
+  // Login com email/senha
+  async function login(email: string, senha: string) {
+    await signInWithEmailAndPassword(auth, email, senha);
   }
 
-  function logout() {
-    setUser(null);
+  // Logout
+  async function logout() {
+    await signOut(auth);
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
