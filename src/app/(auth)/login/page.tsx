@@ -31,10 +31,16 @@ export default function Login() {
       }
       addToast("Login realizado com sucesso!", "success"); // TOAST
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setErro(err.message);
-      addToast(`Erro: ${err.message}`, "error"); // TOAST
+
+      if (err instanceof Error) {
+        setErro(err.message);
+        addToast(`Erro: ${err.message}`, "error");
+      } else {
+        setErro("Erro desconhecido");
+        addToast("Erro desconhecido", "error");
+      }
     }
   };
 
@@ -44,11 +50,18 @@ export default function Login() {
       await signInWithPopup(auth, googleProvider);
       addToast("Login com Google realizado com sucesso!", "success"); // TOAST
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setErro(err.message);
-      addToast(`Erro: ${err.message}`, "error"); // TOAST
+
+      if (err instanceof Error) {
+        setErro(err.message);
+        addToast(`Erro: ${err.message}`, "error");
+      } else {
+        setErro("Erro desconhecido");
+        addToast("Erro desconhecido", "error");
+      }
     }
+
   };
 
   const loginGithub = async () => {
@@ -57,11 +70,18 @@ export default function Login() {
       await signInWithPopup(auth, githubProvider);
       addToast("Login com GitHub realizado com sucesso!", "success"); // TOAST
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setErro(err.message);
-      addToast(`Erro: ${err.message}`, "error"); // TOAST
+
+      if (err instanceof Error) {
+        setErro(err.message);
+        addToast(`Erro: ${err.message}`, "error");
+      } else {
+        setErro("Erro desconhecido");
+        addToast("Erro desconhecido", "error");
+      }
     }
+
   };
 
   return (
@@ -84,13 +104,13 @@ export default function Login() {
         maxWidth: "400px",
         textAlign: "center"
       }}>
-        <h2 style={{marginBottom: "20px"}}>Login</h2>
+        <h2 style={{ marginBottom: "20px" }}>Login</h2>
 
-        <input 
-          type="email" 
+        <input
+          type="email"
           placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)} 
+          onChange={(e) => setEmail(e.target.value)}
           style={{
             width: "100%",
             padding: "10px",
@@ -100,11 +120,11 @@ export default function Login() {
             fontSize: "16px"
           }}
         />
-        <input 
-          type="password" 
+        <input
+          type="password"
           placeholder="Senha"
           value={senha}
-          onChange={(e) => setSenha(e.target.value)} 
+          onChange={(e) => setSenha(e.target.value)}
           style={{
             width: "100%",
             padding: "10px",
@@ -115,8 +135,8 @@ export default function Login() {
           }}
         />
 
-        <button 
-          onClick={loginEmail} 
+        <button
+          onClick={loginEmail}
           style={{
             width: "100%",
             padding: "10px",
@@ -131,8 +151,8 @@ export default function Login() {
         >
           Login com Email
         </button>
-        <button 
-          onClick={loginGoogle} 
+        <button
+          onClick={loginGoogle}
           style={{
             width: "100%",
             padding: "10px",
@@ -147,8 +167,8 @@ export default function Login() {
         >
           Login com Google
         </button>
-        <button 
-          onClick={loginGithub} 
+        <button
+          onClick={loginGithub}
           style={{
             width: "100%",
             padding: "10px",
@@ -178,7 +198,7 @@ export default function Login() {
           Esqueci minha senha
         </button>
 
-        {erro && <p style={{color:"red", marginTop:"15px"}}>{erro}</p>}
+        {erro && <p style={{ color: "red", marginTop: "15px" }}>{erro}</p>}
       </div>
     </div>
   );

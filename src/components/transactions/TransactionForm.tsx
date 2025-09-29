@@ -53,7 +53,7 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
     } else {
       setForm(initial);
     }
-  }, [selected]);
+  }, [selected, initial]);
 
   function change<K extends keyof typeof form>(k: K, v: typeof form[K]) {
     setForm((s) => ({ ...s, [k]: v }));

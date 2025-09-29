@@ -4,8 +4,10 @@ import { auth } from "../../lib/firebase";
 import { updateProfile, signOut, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
+import { User as FirebaseUser } from "firebase/auth";
+
 export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [nome, setNome] = useState("");
   const router = useRouter();
 
@@ -64,7 +66,7 @@ export default function ProfilePage() {
           </label>
           <input
             type="text"
-            value={user.email}
+            value={user?.email || ""}
             disabled
             className="w-full p-2 border rounded-lg bg-gray-200 dark:bg-gray-600 dark:text-white"
           />

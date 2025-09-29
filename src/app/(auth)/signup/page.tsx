@@ -1,7 +1,7 @@
-"use client"; 
+"use client";
 import React, { useState } from "react";
 import { auth } from "../../../lib/firebase";
-import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
+import { sendEmailVerification, updateProfile } from "firebase/auth";
 
 function validarCPF(cpf: string): boolean {
   cpf = cpf.replace(/[^\d]+/g, "");
@@ -58,9 +58,14 @@ export default function Register() {
       }
       setSucesso("Cadastro realizado! Verifique seu e-mail para ativar a conta.");
       setNome(""); setEmail(""); setSenha(""); setCpf("");
-    } catch (err: any) {
-      setErro(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErro(err.message);
+      } else {
+        setErro("Erro desconhecido");
+      }
     }
+
   };
 
   return (
@@ -82,7 +87,7 @@ export default function Register() {
         maxWidth: "400px",
         textAlign: "center"
       }}>
-        <h2 style={{marginBottom: "20px"}}>Cadastro</h2>
+        <h2 style={{ marginBottom: "20px" }}>Cadastro</h2>
         <input
           type="text"
           placeholder="Nome"
@@ -133,8 +138,8 @@ export default function Register() {
         >
           Cadastrar
         </button>
-        {erro && <p style={{color:"red", marginTop:"15px"}}>{erro}</p>}
-        {sucesso && <p style={{color:"green", marginTop:"15px"}}>{sucesso}</p>}
+        {erro && <p style={{ color: "red", marginTop: "15px" }}>{erro}</p>}
+        {sucesso && <p style={{ color: "green", marginTop: "15px" }}>{sucesso}</p>}
       </div>
     </div>
   );

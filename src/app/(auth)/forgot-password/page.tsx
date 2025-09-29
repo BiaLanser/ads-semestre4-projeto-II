@@ -18,13 +18,17 @@ export default function ForgotPassword() {
       setError("Digite seu e-mail.");
       return;
     }
-
     try {
       await sendPasswordResetEmail(auth, email);
       setMessage("E-mail de redefinição enviado com sucesso!");
-    } catch (err: any) {
-      setError(err.message || "Erro ao enviar e-mail.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erro ao enviar e-mail.");
+      }
     }
+
   };
 
   return (

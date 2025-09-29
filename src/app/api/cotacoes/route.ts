@@ -13,7 +13,7 @@ export async function GET() {
       dolar: parseFloat(dollarData?.USDBRL?.bid || "0"),
       ibovespa,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erro ao buscar cotações" }, { status: 500 });
   }
 }
