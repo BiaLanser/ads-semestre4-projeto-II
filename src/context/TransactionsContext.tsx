@@ -7,7 +7,7 @@ import { Transaction } from "@/components/transactions/TransactionForm";
 type TransactionsContextType = {
   transactions: Transaction[];
   reload: () => void;
-  upcomingTransactions: Transaction[]; // NOVO
+  upcomingTransactions: Transaction[];
 };
 
 const TransactionsContext = createContext<TransactionsContextType>({
@@ -41,16 +41,21 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
           recorrencia: data.recorrencia ?? "variavel",
         });
       });
+
       lista.sort((a, b) => (a.data < b.data ? 1 : -1));
       setTransactions(lista);
 
-      // calcular vencimentos próximos
+      // Calcular vencimentos próximos — apenas despesas pendentes
       const hoje = new Date();
       const proximos = lista.filter((t) => {
+        if (t.tipo !== "despesa") return false; // filtrar só despesas
+        if (t.status === "Pago") return false;   // ignorar já pagas
+
         const tData = new Date(t.data);
         const diff = (tData.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24);
-        return diff >= 0 && diff <= 7; // nos próximos 7 dias
+        return diff >= 0 && diff <= 7; // próximos 7 dias
       });
+
       setUpcomingTransactions(proximos);
     });
 
