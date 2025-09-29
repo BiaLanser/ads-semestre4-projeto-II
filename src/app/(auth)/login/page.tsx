@@ -8,6 +8,7 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
 } from "firebase/auth";
+import { useToast } from "@/context/ToastContext"; // Importa ToastContext
 
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
@@ -17,6 +18,7 @@ export default function Login() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const router = useRouter();
+  const { addToast } = useToast(); // Usa ToastContext
 
   const loginEmail = async () => {
     setErro("");
@@ -24,11 +26,15 @@ export default function Login() {
       const cred = await signInWithEmailAndPassword(auth, email, senha);
       if (!cred.user.emailVerified) {
         setErro("Confirme seu e-mail antes de entrar.");
+        addToast("Confirme seu e-mail antes de entrar.", "error"); // TOAST
         return;
       }
+      addToast("Login realizado com sucesso!", "success"); // TOAST
       router.push("/dashboard");
     } catch (err: any) {
+      console.error(err);
       setErro(err.message);
+      addToast(`Erro: ${err.message}`, "error"); // TOAST
     }
   };
 
@@ -36,9 +42,12 @@ export default function Login() {
     setErro("");
     try {
       await signInWithPopup(auth, googleProvider);
+      addToast("Login com Google realizado com sucesso!", "success"); // TOAST
       router.push("/dashboard");
     } catch (err: any) {
+      console.error(err);
       setErro(err.message);
+      addToast(`Erro: ${err.message}`, "error"); // TOAST
     }
   };
 
@@ -46,9 +55,12 @@ export default function Login() {
     setErro("");
     try {
       await signInWithPopup(auth, githubProvider);
+      addToast("Login com GitHub realizado com sucesso!", "success"); // TOAST
       router.push("/dashboard");
     } catch (err: any) {
+      console.error(err);
       setErro(err.message);
+      addToast(`Erro: ${err.message}`, "error"); // TOAST
     }
   };
 

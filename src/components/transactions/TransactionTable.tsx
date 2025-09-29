@@ -1,10 +1,10 @@
 "use client";
-import { useMemo } from "react";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Transaction } from "./TransactionForm";
 import { useTransactions } from "@/context/TransactionsContext";
+import { useToast } from "@/context/ToastContext"; // Importa ToastContext
 
 type Props = {
   onEdit?: (t: Transaction) => void;
@@ -12,6 +12,7 @@ type Props = {
 
 export default function TransactionTable({ onEdit }: Props) {
   const { transactions, reload } = useTransactions();
+  const { addToast } = useToast(); // Usa ToastContext
 
   const [categoriaFilter, setCategoriaFilter] = useState<string>("Todas");
   const [recorrenciaFilter, setRecorrenciaFilter] = useState<string>("Todas");
@@ -42,9 +43,10 @@ export default function TransactionTable({ onEdit }: Props) {
     try {
       await deleteDoc(doc(db, "transacoes", id));
       reload(); // Atualiza tabela e gráficos
+      addToast("Transação excluída com sucesso!", "success"); // TOAST
     } catch (err) {
       console.error(err);
-      alert("Erro ao excluir");
+      addToast("Erro ao excluir transação.", "error"); // TOAST
     }
   }
 
@@ -55,9 +57,10 @@ export default function TransactionTable({ onEdit }: Props) {
         status: t.status === "Pago" ? "Pendente" : "Pago",
       });
       reload();
+      addToast(`Status da transação "${t.descricao}" atualizado para "${t.status === "Pago" ? "Pendente" : "Pago"}".`, "success"); // TOAST
     } catch (err) {
       console.error(err);
-      alert("Erro ao atualizar status");
+      addToast("Erro ao atualizar status.", "error"); // TOAST
     }
   }
 

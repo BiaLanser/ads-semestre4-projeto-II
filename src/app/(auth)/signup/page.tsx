@@ -52,7 +52,6 @@ export default function Register() {
     }
 
     try {
-      const userCred = await createUserWithEmailAndPassword(auth, email, senha);
       if (auth.currentUser) {
         await updateProfile(auth.currentUser, { displayName: nome });
         await sendEmailVerification(auth.currentUser);

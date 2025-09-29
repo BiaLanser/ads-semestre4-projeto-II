@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, addDoc, updateDoc, doc, serverTimestamp } from "firebase/firestore";
 import { useTransactions } from "@/context/TransactionsContext";
+import { useToast } from "@/context/ToastContext"; // ✅ import do Toast
 
 export type Transaction = {
   id?: string;
@@ -23,6 +24,7 @@ type Props = {
 
 export default function TransactionForm({ selected, onSaved, onCancelEdit }: Props) {
   const { reload } = useTransactions();
+  const { addToast } = useToast(); // ✅ hook do Toast
 
   const initial = {
     tipo: "despesa" as "despesa" | "receita",
@@ -61,7 +63,7 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
     e.preventDefault();
 
     if (!form.descricao.trim() || !form.valor || !form.data || !form.categoria.trim()) {
-      alert("Preencha: descrição, valor, data e categoria.");
+      addToast("Preencha: descrição, valor, data e categoria.", "error"); // ✅ toast de erro
       return;
     }
 
@@ -83,19 +85,21 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
           ...payload,
           updatedAt: serverTimestamp(),
         });
+        addToast("Transação atualizada com sucesso!", "success"); // ✅ toast sucesso atualização
       } else {
         await addDoc(collection(db, "transacoes"), {
           ...payload,
           createdAt: serverTimestamp(),
         });
+        addToast("Transação adicionada com sucesso!", "success"); // ✅ toast sucesso adição
       }
 
       setForm(initial);
       onSaved?.();
-      reload(); // Atualiza dashboard automaticamente
+      reload(); // Atualiza dados
     } catch (err) {
       console.error("Erro salvar transação:", err);
-      alert("Erro ao salvar transação. Veja console.");
+      addToast("Erro ao salvar transação. Veja console.", "error"); // ✅ toast erro
     } finally {
       setLoading(false);
     }
@@ -115,12 +119,31 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
         </select>
       </div>
 
-      <input className="w-full p-2 border rounded" placeholder="Descrição" value={form.descricao} onChange={(e) => change("descricao", e.target.value)} />
+      <input
+        className="w-full p-2 border rounded"
+        placeholder="Descrição"
+        value={form.descricao}
+        onChange={(e) => change("descricao", e.target.value)}
+      />
 
       <div className="grid grid-cols-3 gap-2">
-        <input className="p-2 border rounded" placeholder="Valor" type="number" step="0.01" value={form.valor} onChange={(e) => change("valor", e.target.value)} />
+        <input
+          className="p-2 border rounded"
+          placeholder="Valor"
+          type="number"
+          step="0.01"
+          value={form.valor}
+          onChange={(e) => change("valor", e.target.value)}
+        />
+
         <input className="p-2 border rounded" type="date" value={form.data} onChange={(e) => change("data", e.target.value)} />
-        <input className="p-2 border rounded" placeholder="Categoria" value={form.categoria} onChange={(e) => change("categoria", e.target.value)} />
+
+        <input
+          className="p-2 border rounded"
+          placeholder="Categoria"
+          value={form.categoria}
+          onChange={(e) => change("categoria", e.target.value)}
+        />
       </div>
 
       {form.tipo === "despesa" && (
@@ -135,7 +158,14 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
           {selected ? "Atualizar" : "Adicionar"}
         </button>
         {selected && (
-          <button type="button" onClick={() => { setForm(initial); onCancelEdit?.(); }} className="bg-gray-300 px-4 py-2 rounded">
+          <button
+            type="button"
+            onClick={() => {
+              setForm(initial);
+              onCancelEdit?.();
+            }}
+            className="bg-gray-300 px-4 py-2 rounded"
+          >
             Cancelar
           </button>
         )}
