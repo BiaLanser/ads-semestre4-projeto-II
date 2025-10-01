@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
+import { db, auth  } from "@/lib/firebase";
 import { collection, addDoc, updateDoc, doc, serverTimestamp } from "firebase/firestore";
 import { useTransactions } from "@/context/TransactionsContext";
 import { useToast } from "@/context/ToastContext"; // ✅ import do Toast
 
 type PayloadTransaction = Omit<Transaction, "id" | "valor"> & {
   valor: number;
+  userId: string;
 };
 
 
@@ -65,6 +66,9 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
   }
 
   async function handleSubmit(e: React.FormEvent) {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return alert("Usuário não logado");
+
     e.preventDefault();
 
     if (!form.descricao.trim() || !form.valor || !form.data || !form.categoria.trim()) {
@@ -79,6 +83,7 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
       data: form.data,
       categoria: form.categoria.trim(),
       recorrencia: form.recorrencia,
+      userId,
     };
 
     if (form.tipo === "despesa") payload.status = form.status;

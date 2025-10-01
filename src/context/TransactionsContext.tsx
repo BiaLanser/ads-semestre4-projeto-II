@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { db } from "@/lib/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import { db, auth } from "@/lib/firebase";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { Transaction } from "@/components/transactions/TransactionForm";
 
 type FirestoreTransaction = {
@@ -13,6 +13,7 @@ type FirestoreTransaction = {
   status?: "Pendente" | "Pago";
   recorrencia?: "fixa" | "variavel";
   createdAt?: { toDate: () => Date };
+  userId?: string;
 };
 
 type TransactionsContextType = {
@@ -32,12 +33,19 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   const [upcomingTransactions, setUpcomingTransactions] = useState<Transaction[]>([]);
 
   const loadTransactions = () => {
-    const unsub = onSnapshot(collection(db, "transacoes"), (snap) => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return () => {};
+
+    // só buscar transações do usuário logado
+    const q = query(collection(db, "transacoes"), where("userId", "==", userId));
+
+    const unsub = onSnapshot(q, (snap) => {
       const lista: Transaction[] = [];
 
       snap.forEach((d) => {
         const data = d.data() as FirestoreTransaction;
 
+        // normalizar a data
         let dateString = "";
         if (typeof data.data === "string") {
           dateString = data.data;
@@ -54,7 +62,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
           valor: Number(data.valor ?? 0),
           data: dateString,
           categoria: data.categoria ?? "",
-          status: data.status ?? undefined,
+          status: data.status ?? "Pendente", // garante que não seja undefined
           recorrencia: data.recorrencia ?? "variavel",
         });
       });
@@ -62,15 +70,15 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       lista.sort((a, b) => (a.data < b.data ? 1 : -1));
       setTransactions(lista);
 
-      // Calcular vencimentos próximos — apenas despesas pendentes
+      // Calcular próximas despesas pendentes
       const hoje = new Date();
       const proximos = lista.filter((t) => {
-        if (t.tipo !== "despesa") return false; // filtrar só despesas
-        if (t.status === "Pago") return false;   // ignorar já pagas
+        if (t.tipo !== "despesa") return false;
+        if (t.status === "Pago") return false;
 
         const tData = new Date(t.data);
         const diff = (tData.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24);
-        return diff >= 0 && diff <= 7; // próximos 7 dias
+        return diff >= 0 && diff <= 7;
       });
 
       setUpcomingTransactions(proximos);
@@ -85,7 +93,9 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <TransactionsContext.Provider value={{ transactions, reload: loadTransactions, upcomingTransactions }}>
+    <TransactionsContext.Provider
+      value={{ transactions, reload: loadTransactions, upcomingTransactions }}
+    >
       {children}
     </TransactionsContext.Provider>
   );

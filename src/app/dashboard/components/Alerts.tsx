@@ -5,17 +5,24 @@ export default function Alerts() {
   const { upcomingTransactions } = useTransactions();
 
   if (!upcomingTransactions || upcomingTransactions.length === 0) {
-    return null;
+    return (
+      <div className="bg-red-100 dark:bg-red-800 p-4 rounded shadow">
+        <h2 className="font-bold text-lg mb-2">Alertas de Vencimento</h2>
+        <p className="text-gray-600 dark:text-gray-300">Nenhuma despesa pendente nos próximos 7 dias.</p>
+      </div>
+    );
   }
 
   return (
     <div className="bg-red-100 dark:bg-red-800 p-4 rounded shadow">
       <h2 className="font-bold text-lg mb-2">Alertas de Vencimento</h2>
+
       <div className="grid grid-cols-[2fr_1fr_1fr] gap-4 font-semibold border-b pb-2">
         <span>Descrição (Categoria)</span>
         <span className="text-right">Valor</span>
         <span className="text-right">Data</span>
       </div>
+
       <ul className="space-y-2 mt-2">
         {upcomingTransactions.map((t) => (
           <li
