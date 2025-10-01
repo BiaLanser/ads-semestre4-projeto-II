@@ -5,6 +5,11 @@ import { collection, addDoc, updateDoc, doc, serverTimestamp } from "firebase/fi
 import { useTransactions } from "@/context/TransactionsContext";
 import { useToast } from "@/context/ToastContext"; // ✅ import do Toast
 
+type PayloadTransaction = Omit<Transaction, "id" | "valor"> & {
+  valor: number;
+};
+
+
 export type Transaction = {
   id?: string;
   tipo: "despesa" | "receita";
@@ -22,10 +27,6 @@ type Props = {
   onCancelEdit?: () => void;
 };
 
-export default function TransactionForm({ selected, onSaved, onCancelEdit }: Props) {
-  const { reload } = useTransactions();
-  const { addToast } = useToast(); // ✅ hook do Toast
-
   const initial = {
     tipo: "despesa" as "despesa" | "receita",
     descricao: "",
@@ -35,6 +36,10 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
     status: "Pendente" as "Pendente" | "Pago",
     recorrencia: "variavel" as "fixa" | "variavel",
   };
+
+export default function TransactionForm({ selected, onSaved, onCancelEdit }: Props) {
+  const { reload } = useTransactions();
+  const { addToast } = useToast(); // ✅ hook do Toast
 
   const [form, setForm] = useState(initial);
   const [loading, setLoading] = useState(false);
@@ -67,7 +72,7 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
       return;
     }
 
-    const payload: any = {
+    const payload: PayloadTransaction  = {
       tipo: form.tipo,
       descricao: form.descricao.trim(),
       valor: Number(form.valor),
@@ -108,12 +113,12 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
   return (
     <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-4 rounded shadow-sm space-y-3">
       <div className="grid grid-cols-2 gap-2">
-        <select value={form.tipo} onChange={(e) => change("tipo", e.target.value as any)} className="p-2 border rounded">
+        <select value={form.tipo} onChange={(e) => change("tipo", e.target.value as "despesa" | "receita")} className="p-2 border rounded">
           <option value="despesa">Despesa</option>
           <option value="receita">Receita</option>
         </select>
 
-        <select value={form.recorrencia} onChange={(e) => change("recorrencia", e.target.value as any)} className="p-2 border rounded">
+        <select value={form.recorrencia} onChange={(e) => change("recorrencia", e.target.value as "variavel" | "fixa")} className="p-2 border rounded">
           <option value="variavel">Variável</option>
           <option value="fixa">Fixa</option>
         </select>
@@ -147,7 +152,7 @@ export default function TransactionForm({ selected, onSaved, onCancelEdit }: Pro
       </div>
 
       {form.tipo === "despesa" && (
-        <select className="w-full p-2 border rounded" value={form.status} onChange={(e) => change("status", e.target.value as any)}>
+        <select className="w-full p-2 border rounded" value={form.status} onChange={(e) => change("status", e.target.value as "Pendente" | "Pago")}>
           <option value="Pendente">Pendente</option>
           <option value="Pago">Pago</option>
         </select>

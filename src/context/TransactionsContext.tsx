@@ -4,6 +4,17 @@ import { db } from "@/lib/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 import { Transaction } from "@/components/transactions/TransactionForm";
 
+type FirestoreTransaction = {
+  tipo?: "despesa" | "receita";
+  descricao?: string;
+  valor?: number;
+  data?: string | { toDate: () => Date };
+  categoria?: string;
+  status?: "Pendente" | "Pago";
+  recorrencia?: "fixa" | "variavel";
+  createdAt?: { toDate: () => Date };
+};
+
 type TransactionsContextType = {
   transactions: Transaction[];
   reload: () => void;
@@ -23,12 +34,18 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   const loadTransactions = () => {
     const unsub = onSnapshot(collection(db, "transacoes"), (snap) => {
       const lista: Transaction[] = [];
+
       snap.forEach((d) => {
-        const data = d.data() as any;
+        const data = d.data() as FirestoreTransaction;
+
         let dateString = "";
-        if (typeof data.data === "string") dateString = data.data;
-        else if (data.data && data.data.toDate) dateString = data.data.toDate().toISOString().slice(0, 10);
-        else if (data.createdAt && data.createdAt.toDate) dateString = data.createdAt.toDate().toISOString().slice(0, 10);
+        if (typeof data.data === "string") {
+          dateString = data.data;
+        } else if (data.data && "toDate" in data.data) {
+          dateString = data.data.toDate().toISOString().slice(0, 10);
+        } else if (data.createdAt && "toDate" in data.createdAt) {
+          dateString = data.createdAt.toDate().toISOString().slice(0, 10);
+        }
 
         lista.push({
           id: d.id,
